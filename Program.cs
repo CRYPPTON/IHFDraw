@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using Microsoft.VisualBasic.FileIO;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 
 namespace IHFdraw
 {
@@ -26,6 +27,7 @@ namespace IHFdraw
 
             makeDraw(representations);
 
+
         }
 
         static List<Representation> getData()
@@ -33,6 +35,11 @@ namespace IHFdraw
             string Country;
             string Continent;
             string Rang;
+            string Group;
+            int Position;
+            int Selection;
+            int Score;
+            int Goal;
 
             var path = @"C:\Users\nikol\OneDrive\Desktop\HandBallDrawApp\IHFdraw\IHFdraw\data\ulaz.csv";
 
@@ -52,7 +59,12 @@ namespace IHFdraw
                     Country = fields[0];
                     Continent = fields[1];
                     Rang = fields[2];
-                    RepresentationList.Add(new Representation(Country, Continent, Rang));
+                    Group = "/";
+                    Position = 0;
+                    Selection = 0;
+                    Score = 0;
+                    Goal = 0;
+                    RepresentationList.Add(new Representation(Country, Continent, Rang, Position, Group, Selection, Score, Goal));
                 }
             }
             
@@ -101,25 +113,15 @@ namespace IHFdraw
         {
 
             List<Representation> SortedList = representations.OrderBy(x => Int32.Parse(x.IhfRang)).ToList();
-            string[][] selection = new string[4][];
-            int numGroup = 4;
+            string[] groupA = { "A", "B", "C", "D", "E", "F", "G", "H"};
+            string[] groupB = { "A", "B", "C", "D", "E", "F", "G", "H" };
+            string[] groupC = { "A", "B", "C", "D", "E", "F", "G", "H" };
+            string[] groupD = { "A", "B", "C", "D", "E", "F", "G", "H" };
 
-            foreach (var Representation in SortedList)
-            {
-                Console.WriteLine("Representations: {0}, Continent: {1}, Rang: {2}", Representation.Country, Representation.Continent, Representation.IhfRang);
-            }
-            Console.WriteLine();
-            Console.WriteLine();
-
-            for ( numGroup = 0; numGroup < 4; numGroup++) 
-            {
-                selection[numGroup] = new string[8];
-            }
-           
-
-            
             int i = 0;
             int j = 0;
+            int rInt;
+            Random r = new Random();
 
             foreach (var Representation in SortedList)
             {
@@ -128,46 +130,194 @@ namespace IHFdraw
                     i++;
                     j = 0;
                     Console.WriteLine();
-                    Console.WriteLine();
                 }
-                // Console.WriteLine("Representations: {0}, Continent: {1}, Rang: {2}", Representation.Country, Representation.Continent, Representation.IhfRang);
-                selection[i][j] = Representation.Country;  
-                Console.WriteLine(selection[i][j]);
+                if (i == 0) 
+                {
+                    rInt = r.Next(0, 8 - j);
+                    Representation.Group = groupA[rInt];
+                    Representation.GroupPosition = 1;
+                    groupA = groupA.Where(val => val != groupA[rInt]).ToArray();     
+                }
+
+                if (i == 1)
+                {
+                    rInt = r.Next(0, 8 - j);
+                    Representation.Group = groupB[rInt];
+                    Representation.GroupPosition = 2;
+                    groupB = groupB.Where(val => val != groupB[rInt]).ToArray();
+                }
+                if (i == 2)
+                {
+                    rInt = r.Next(0, 8 - j);
+                    Representation.Group = groupC[rInt];
+                    Representation.GroupPosition = 3;
+                    groupC = groupC.Where(val => val != groupC[rInt]).ToArray();
+                }
+                if (i == 3)
+                {
+                    rInt = r.Next(0, 8 - j);
+                    Representation.Group = groupD[rInt];
+                    Representation.GroupPosition = 4;
+                    groupD = groupD.Where(val => val != groupD[rInt]).ToArray();
+                }
+
+                Representation.Selection = i+1;
                 j++;
-           }
+                Console.WriteLine("Representations: {0}, Continent: {1}, Rang: {2}, Group: {3}, Group Position: {4} Selection: {5}", Representation.Country, Representation.Continent, Representation.IhfRang, Representation.Group, Representation.GroupPosition, Representation.Selection);
+            }
+
+
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine();
 
 
 
-            string[][] group = new string[8][];
+            List<Representation> SortedListByGroup = representations.OrderBy(x => x.Group).ToList();
 
-            for (numGroup = 0; numGroup < 8; numGroup++)
+            int t = 0;
+            foreach (var Representation in SortedListByGroup)
             {
-                group[numGroup] = new string[4];
+                if (t % 4 == 0) Console.WriteLine();
+                Console.WriteLine("Representations: {0}, Continent: {1},  Group: {2}, Group Position: {3} ", Representation.Country, Representation.Continent,  Representation.Group, Representation.GroupPosition);
+                t++;
             }
-            Console.WriteLine();
-            Console.WriteLine();
-            Console.WriteLine();
-            // add I rank teams
-            int rInt;
-            Random r = new Random();
-            for (i = 0; i < 8; i++)
-            {   
-                
-                rInt = r.Next(0, 8-i);                  //missed rand 
-                
-                
-                group[i][0] = selection[0][rInt];
-                
-
-
-                selection[0] = selection[0].Where(val => val != selection[0][rInt]).ToArray();
-
-                Console.WriteLine("Grupa: {0}, Drzava: {1}", i+1 ,group[i][0]);
-            }
-
-
+            generateCSV(SortedListByGroup);
         }
 
+
+        static void generateCSV(List<Representation>  data)
+        {
+            var file = @"C:\Users\nikol\OneDrive\Desktop\grupe.csv";
+            string text = "";
+            List<Representation> groupList = new List<Representation>();
+
+
+            using (var stream = File.CreateText(file))
+            {
+                int i = 1;
+
+                foreach(var team in data)
+                {
+                    
+                    groupList.Add(team);
+                    string group = team.Group;
+
+                    if (i%4 == 0 && i>0)
+                    {
+                        
+                        groupList = groupList.OrderBy(x => Int32.Parse(x.IhfRang)).ToList();
+                        generateMatch(groupList);
+
+
+                        foreach (var k in groupList)
+                        {
+                            string name = k.Country;
+                            string pos = k.GroupPosition.ToString();
+                            
+                            text += pos + ". " + name + ",";
+                        }
+                        
+                        string csvRow = string.Format("{0}, {1}", group, text);
+                        stream.WriteLine(csvRow);
+                        text = "";
+                        groupList = new List<Representation>();
+                    }
+
+
+                    i++;
+                    
+                }
+            }
+        }
+
+        static void generateMatch(List<Representation> group)
+        {
+            Console.WriteLine();
+            Console.WriteLine();
+            var team1 = "";
+            var team2 = "";
+            var team3 = "";
+            var team4 = "";
+            var score1 = 0;
+            var score2 = 0;
+         
+
+            
+
+            foreach (var k in group)
+            {
+                if (k.GroupPosition == 1)
+                {
+                    team1 = k.Country;
+                }
+                if (k.GroupPosition == 2)
+                {
+                    team2 = k.Country;
+                }
+                if (k.GroupPosition == 3)
+                {
+                    team3 = k.Country;
+                }
+                if (k.GroupPosition == 4)
+                {
+                    team4 = k.Country;
+                }
+            }
+
+
+            Random rnd = new Random();
+            foreach (var t in group)
+                {
+                if (t.GroupPosition == 1)
+                {
+
+                    score1 = rnd.Next(10, 50);
+                    score2 = rnd.Next(10, 50);
+                    if (score1 > score2)
+                    {
+                        t.Goal = score1;
+                        t.Score += 3;
+
+                    }
+                    if (score1 == score2) 
+                    {
+                        t.Goal = score1;
+                        t.Score ++;
+                    }
+                    if (score1 < score2)
+                    {
+                        t.Goal = score1;        
+                    }
+
+                    Console.WriteLine("{0} - {1}, {2} : {3}", team1, team2, score1, score2);
+                        score1 = rnd.Next(10, 50);
+                        score2 = rnd.Next(10, 50);
+                        Console.WriteLine("{0} - {1}, {2} : {3}", team1, team3, score1, score2);
+                        score1 = rnd.Next(10, 50);
+                        score2 = rnd.Next(10, 50);
+                        Console.WriteLine("{0} - {1}, {2} : {3}", team1, team4, score1, score2);
+                    } 
+                    if (t.GroupPosition == 2) 
+                    {
+                        score1 = rnd.Next(10, 50);
+                        score2 = rnd.Next(10, 50);
+                        Console.WriteLine("{0} - {1}, {2} : {3}", team2, team3, score1, score2);
+                        score1 = rnd.Next(10, 50);
+                        score2 = rnd.Next(10, 50);
+                        Console.WriteLine("{0} - {1}, {2} : {3}", team2, team4, score1, score2);
+                    }
+                    if (t.GroupPosition == 3)
+                    {
+                        score1 = rnd.Next(10, 50);
+                        score2 = rnd.Next(10, 50);
+                        Console.WriteLine("{0} - {1}, {2} : {3}", team3, team4, score1, score2);
+                    }
+
+
+            }
+         
+        }
 
             
     }
