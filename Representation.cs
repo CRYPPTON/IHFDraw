@@ -9,9 +9,9 @@ public class Representation
     private string group;
     public Representation(string dataCountry, string dataContinent, string dataIhfRang, int datagroupPosition = 0, string dataGroup = "null")
 	{
-		country = dataCountry;
-		continent = dataContinent;
-		ihfRang = dataIhfRang;
+	country = dataCountry;
+	continent = dataContinent;
+	ihfRang = dataIhfRang;
         groupPosition = datagroupPosition;
         group = dataGroup;
 
