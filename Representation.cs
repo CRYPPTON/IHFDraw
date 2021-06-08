@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 public class Representation
 {
@@ -7,14 +7,21 @@ public class Representation
     private string ihfRang;
     private int groupPosition;
     private string group;
-    public Representation(string dataCountry, string dataContinent, string dataIhfRang, int datagroupPosition = 0, string dataGroup = "null")
+    private int selection;
+    private int score;
+    private int goal;
+    public Representation(string dataCountry, string dataContinent, string dataIhfRang, int datagroupPosition, string dataGroup, int dataSelection, int dataScore, int dataGoal)
 	{
-	country = dataCountry;
-	continent = dataContinent;
-	ihfRang = dataIhfRang;
+		country = dataCountry;
+		continent = dataContinent;
+		ihfRang = dataIhfRang;
         groupPosition = datagroupPosition;
         group = dataGroup;
-
+        groupPosition = datagroupPosition;
+        group = dataGroup;
+        selection = dataSelection;
+        score = dataScore;
+        goal = dataGoal;
     }
 
     public string Country
@@ -44,6 +51,23 @@ public class Representation
     {
         get { return group; }
         set { group = value; }
+    }
+
+    public int Selection
+    {
+        get { return selection; }
+        set { selection = value; }
+    }
+
+    public int Score
+    {
+        get { return score; }
+        set { score = value; }
+    }
+    public int Goal
+    {
+        get { return goal; }
+        set { goal = value; }
     }
 
 
